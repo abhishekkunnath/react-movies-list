@@ -4,7 +4,6 @@ import TopNavigationBar from '../../components/TopNavigationBar';
 
 import PlaceHolderImage from '../../../public/assets/images/img_placeholder.png';
 
-
 type Movies = {
     title: string;
     'total-content-items': string;
@@ -24,39 +23,67 @@ type Content = {
 };
 
 const moviesUrl = (pageNumber: number) =>
-    `https://github.com/abhishekkunnath/react-movies-list/blob/master/page${pageNumber}.json`;
+    `https://abhishekkunnath.github.io/react-movies-list/page${pageNumber}.json`;
 
 const MoviesComponent = () => {
     const [moviesData, setMoviesData] = useState<Movies>(null);
+    const [pageNo, setPageNo] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
     const fetchMovies = (pageNumber: number) => {
-        debugger;
         fetch(moviesUrl(pageNumber))
             .then((response) => response.json())
             .then((jsonData) => {
-                // jsonData is parsed json object received from url
-                console.log(jsonData);
-                setMoviesData(jsonData.page);
+                if (!moviesData) {
+                    setMoviesData(jsonData.page);
+                } else {
+                    let moviesList = moviesData;
+                    let newItems = jsonData.page['content-items'].content;
+                    moviesList['content-items'].content.push(...newItems);
+                    setMoviesData(moviesList);
+                }
+                setPageNo(pageNumber);
             })
             .catch((error) => {
-                // handle your errors here
                 console.error(error);
             });
     };
 
     useEffect(() => {
-        fetchMovies(1);
+        if (
+            moviesData &&
+            moviesData['content-items'].content.length ===
+                parseInt(moviesData['total-content-items'])
+        ) {
+            setHasMore(false);
+        }
+    }, [moviesData]);
+
+    useEffect(() => {
+        fetchMovies(pageNo);
     }, []);
+
+    const buildImage = (image: string) => {
+        try {
+            require(`../../../public/assets/images/${image}`)
+            return `../../../public/assets/images/${image}`
+        } catch (e) {
+            return PlaceHolderImage
+        }
+    };
 
     return (
         <div className="h-full min-h-screen bg-black">
             <TopNavigationBar />
             {moviesData && (
                 <InfiniteScroll
-                    dataLength={54}
-                    next={() => {}}
-                    hasMore={true}
-                    loader={null}
+                    dataLength={
+                        parseInt(moviesData['total-content-items']) -
+                        moviesData['content-items'].content.length
+                    }
+                    next={() => fetchMovies(pageNo + 1)}
+                    hasMore={hasMore}
+                    loader={<h4>Loading...</h4>}
                     className="grid grid-cols-3 px-2"
                 >
                     {moviesData['content-items'].content.map((movie, index) => (
@@ -65,14 +92,11 @@ const MoviesComponent = () => {
                             className="mx-2 mb-8 font-titillium text-gray-50"
                         >
                             <img
-                                src={
-                                    `../../../public/assets/images/${movie['poster-image']}` ||
-                                    PlaceHolderImage
-                                }
+                                src={buildImage(movie['poster-image'])}
                                 alt={movie.name}
                                 className="block mb-1"
                             />
-                            <span>{movie.name}</span>
+                            <span className="truncate block">{movie.name}</span>
                         </div>
                     ))}
                 </InfiniteScroll>
