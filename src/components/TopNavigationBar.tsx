@@ -7,7 +7,7 @@ import CloseIcon from '../../public/assets/icons/ic_close.png';
 const TopNavigationBar = ({ onSearch }: any) => {
     const [searchBarVisible, setSearchBarVisible] = useState(false);
     return (
-        <div className="flex justify-between items-center sticky top-0 h-16 w-screen px-4 bg-gradient-to-b from-black">
+        <div className="flex justify-between items-center sticky top-0 h-16 px-4 bg-gradient-to-b from-black">
             <div className="flex whitespace-nowrap items-center">
                 <img className="h-6 w-6" src={BackIcon} alt="Back" />
                 {!searchBarVisible && (
@@ -29,7 +29,10 @@ const TopNavigationBar = ({ onSearch }: any) => {
                         className="h-9 w-9"
                         src={CloseIcon}
                         alt="close"
-                        onClick={() => setSearchBarVisible(!searchBarVisible)}
+                        onClick={() => {
+                            setSearchBarVisible(!searchBarVisible);
+                            onSearch('');
+                        }}
                     />
                 )}
                 {searchBarVisible && (
