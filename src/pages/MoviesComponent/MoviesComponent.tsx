@@ -74,7 +74,7 @@ const MoviesComponent = () => {
     };
 
     return (
-        <div className="h-full min-h-screen bg-black">
+        <div className="h-full min-h-screen max-w-md bg-black">
             <TopNavigationBar
                 onSearch={(searchQuery: string) => setSearchQuery(searchQuery)}
             />
