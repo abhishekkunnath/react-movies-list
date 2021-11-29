@@ -23,12 +23,14 @@ type Content = {
 };
 
 const moviesUrl = (pageNumber: number) =>
-    `https://abhishekkunnath.github.io/react-movies-list/page${pageNumber}.json`;
+    // `https://abhishekkunnath.github.io/react-movies-list/page${pageNumber}.json`;
+    `../../../public/data/page${pageNumber}.json`
 
 const MoviesComponent = () => {
     const [moviesData, setMoviesData] = useState<Movies>(null);
     const [pageNo, setPageNo] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     const fetchMovies = (pageNumber: number) => {
         fetch(moviesUrl(pageNumber))
@@ -65,16 +67,18 @@ const MoviesComponent = () => {
 
     const buildImage = (image: string) => {
         try {
-            require(`../../../public/assets/images/${image}`)
-            return `../../../public/assets/images/${image}`
+            require(`../../../public/assets/images/${image}`);
+            return `../../../public/assets/images/${image}`;
         } catch (e) {
-            return PlaceHolderImage
+            return PlaceHolderImage;
         }
     };
 
     return (
-        <div className="h-full min-h-screen bg-black">
-            <TopNavigationBar />
+        <div className="h-full min-h-screen max-w-md bg-black">
+            <TopNavigationBar
+                onSearch={(searchQuery: string) => setSearchQuery(searchQuery)}
+            />
             {moviesData && (
                 <InfiniteScroll
                     dataLength={
@@ -86,19 +90,31 @@ const MoviesComponent = () => {
                     loader={<h4>Loading...</h4>}
                     className="grid grid-cols-3 px-2"
                 >
-                    {moviesData['content-items'].content.map((movie, index) => (
-                        <div
-                            key={index}
-                            className="mx-2 mb-8 font-titillium text-gray-50"
-                        >
-                            <img
-                                src={buildImage(movie['poster-image'])}
-                                alt={movie.name}
-                                className="block mb-1"
-                            />
-                            <span className="truncate block">{movie.name}</span>
-                        </div>
-                    ))}
+                    {moviesData['content-items'].content
+                        .filter((movie) => {
+                            if (searchQuery === '') {
+                                return movie;
+                            } else if (
+                                movie.name.toLowerCase().includes(searchQuery)
+                            ) {
+                                return movie;
+                            }
+                        })
+                        .map((movie, index) => (
+                            <div
+                                key={index}
+                                className="mx-2 mb-8 font-titillium text-gray-50"
+                            >
+                                <img
+                                    src={buildImage(movie['poster-image'])}
+                                    alt={movie.name}
+                                    className="block mb-1"
+                                />
+                                <span className="truncate block">
+                                    {movie.name}
+                                </span>
+                            </div>
+                        ))}
                 </InfiniteScroll>
             )}
         </div>
