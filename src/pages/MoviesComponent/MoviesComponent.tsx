@@ -23,7 +23,8 @@ type Content = {
 };
 
 const moviesUrl = (pageNumber: number) =>
-    `https://abhishekkunnath.github.io/react-movies-list/page${pageNumber}.json`;
+    // `https://abhishekkunnath.github.io/react-movies-list/page${pageNumber}.json`;
+    `../../../public/data/page${pageNumber}.json`
 
 const MoviesComponent = () => {
     const [moviesData, setMoviesData] = useState<Movies>(null);
